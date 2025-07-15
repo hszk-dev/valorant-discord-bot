@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valorant Discord Bot | サーバーをもっと楽しく</title>
+    <meta name="description" content="ValorantサーバーをDiscordで盛り上げよう。統計表示、トーナメント管理、プレイヤー検索など、多彩な機能でコミュニティを活性化。">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #ffffff;
+            background: #0d1117;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(13, 17, 23, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #30363d;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #58a6ff;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #ff4655, #7c3aed);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #c9d1d9;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: #58a6ff;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 120px 0 80px;
+            text-align: center;
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M20 20h60v60H20z' fill='none' stroke='%23ff4655' stroke-width='0.5' opacity='0.1'/%3E%3Cpath d='M30 30h40v40H30z' fill='none' stroke='%237c3aed' stroke-width='0.5' opacity='0.1'/%3E%3C/svg%3E") repeat;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff4655, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            color: #8b949e;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff4655, #ff6b7a);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 70, 85, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #58a6ff;
+            border: 2px solid #58a6ff;
+        }
+
+        .btn-secondary:hover {
+            background: #58a6ff;
+            color: white;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background: #161b22;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #f0f6fc;
+            font-weight: 700;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #8b949e;
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: #0d1117;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: #ff4655;
+            box-shadow: 0 10px 30px rgba(255, 70, 85, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #ff4655;
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #f0f6fc;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: #8b949e;
+            line-height: 1.6;
+        }
+
+        /* Quick Start Section */
+        .quick-start {
+            padding: 80px 0;
+            background: #0d1117;
+        }
+
+        .quick-start-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            padding: 1.5rem;
+            border-radius: 8px;
+            background: #161b22;
+            border: 1px solid #30363d;
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #ff4655, #7c3aed);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+            color: white;
+        }
+
+        .step h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: #f0f6fc;
+        }
+
+        .step p {
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+
+        /* Commands Section */
+        .commands {
+            padding: 80px 0;
+            background: #161b22;
+        }
+
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .command-card {
+            background: #0d1117;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #30363d;
+            transition: all 0.3s;
+        }
+
+        .command-card:hover {
+            border-color: #7c3aed;
+        }
+
+        .command-card h4 {
+            color: #7c3aed;
+            margin-bottom: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+        }
+
+        .command-card p {
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #ff4655, #7c3aed);
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: white;
+            font-weight: 700;
+        }
+
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .btn-cta {
+            background: white;
+            color: #ff4655;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            background: #010409;
+            padding: 60px 0 30px;
+            border-top: 1px solid #30363d;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h3 {
+            color: #f0f6fc;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-section ul li a {
+            color: #8b949e;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: #58a6ff;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #30363d;
+            color: #8b949e;
+        }
+
+        .footer-bottom p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feature-card {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Discord Icon */
+        .discord-icon::before {
+            content: "🎮";
+        }
+
+        /* Status Badge */
+        .status-badge {
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <div class="logo-icon">V</div>
+                <span>Valorant Discord Bot</span>
+                <span class="status-badge">ベータ版</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#features">機能</a></li>
+                <li><a href="#commands">コマンド</a></li>
+                <li><a href="#support">サポート</a></li>
+                <li><a href="#docs">使い方</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Valorantサーバーを<br>もっと楽しく</h1>
+                <p class="hero-subtitle">
+                    統計表示、トーナメント管理、プレイヤー検索まで。<br>
+                    多彩な機能でDiscordコミュニティを活性化しましょう。
+                </p>
+                <div class="hero-buttons">
+                    <a href="#add-bot" class="btn btn-primary">
+                        <span class="discord-icon"></span>
+                        サーバーに追加
+                    </a>
+                    <a href="#features" class="btn btn-secondary">
+                        機能を見る
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">豊富な機能</h2>
+            <p class="section-subtitle">
+                ValorantプレイヤーのためのオールインワンBot
+            </p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>プレイヤー統計</h3>
+                    <p>ランク、勝率、KDA、エージェント別成績など詳細な統計を即座に表示。リアルタイムデータでプレイヤーの成長を追跡できます。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3>トーナメント管理</h3>
+                    <p>シングルエリミネーション形式のトーナメントを簡単に作成・管理。ブラケット表示と自動進行で大会運営をサポート。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>プレイヤー検索</h3>
+                    <p>Riot IDでプレイヤー情報を検索。プロフィール、最近の試合、使用エージェントなど包括的な情報を提供。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>サーバー設定</h3>
+                    <p>チャンネル設定、権限管理、自動通知など。各サーバーに合わせてカスタマイズ可能な柔軟な設定システム。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>チーム機能</h3>
+                    <p>チーム登録、メンバー管理、チーム統計表示。コミュニティ内のチーム戦やスクリムをより楽しく。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>セキュリティ</h3>
+                    <p>データは暗号化され、サーバー別に分離保存。個人情報保護とプライバシーに配慮した安全な運用。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="quick-start" class="quick-start">
+        <div class="container">
+            <div class="quick-start-content">
+                <h2 class="section-title">かんたんスタート</h2>
+                <p class="section-subtitle">
+                    3ステップでサーバーに導入完了
+                </p>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <h3>Botを追加</h3>
+                        <p>サーバーに招待してDiscordで認証</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <h3>設定</h3>
+                        <p>/setup でチャンネルと権限を設定</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <h3>完了</h3>
+                        <p>すぐにコマンドを使用開始</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="commands" class="commands">
+        <div class="container">
+            <h2 class="section-title">主要コマンド</h2>
+            <p class="section-subtitle">
+                すべてスラッシュコマンドで簡単操作
+            </p>
+            <div class="commands-grid">
+                <div class="command-card">
+                    <h4>/stats [riot_id]</h4>
+                    <p>プレイヤーの統計情報を表示</p>
+                </div>
+                <div class="command-card">
+                    <h4>/search [player_name]</h4>
+                    <p>プレイヤー検索と基本情報</p>
+                </div>
+                <div class="command-card">
+                    <h4>/tournament create</h4>
+                    <p>新しいトーナメントを作成</p>
+                </div>
+                <div class="command-card">
+                    <h4>/team register</h4>
+                    <p>チームを登録・管理</p>
+                </div>
+                <div class="command-card">
+                    <h4>/match history</h4>
+                    <p>最近の試合履歴を表示</p>
+                </div>
+                <div class="command-card">
+                    <h4>/setup</h4>
+                    <p>Bot設定とチャンネル設定</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>今すぐ始めよう</h2>
+            <p>Valorantサーバーを次のレベルへ</p>
+            <a href="#add-bot" class="btn btn-cta">
+                <span class="discord-icon"></span>
+                Discordに追加
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Bot情報</h3>
+                    <ul>
+                        <li><a href="/docs">使い方ガイド</a></li>
+                        <li><a href="/commands">コマンド一覧</a></li>
+                        <li><a href="/changelog">更新履歴</a></li>
+                        <li><a href="/roadmap">開発ロードマップ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>サポート</h3>
+                    <ul>
+                        <li><a href="mailto:hszk.dev@gmail.com">お問い合わせ</a></li>
+                        <li><a href="/faq">よくある質問</a></li>
+                        <li><a href="/bug-report">バグ報告</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>リーガル</h3>
+                    <ul>
+                        <li><a href="terms.html">利用規約</a></li>
+                        <li><a href="privacy.html">プライバシーポリシー</a></li>
+                        <li><a href="/disclaimer">免責事項</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>開発</h3>
+                    <ul>
+                        <li><a href="https://github.com/hszk-dev/valorant-discord-bot">GitHub</a></li>
+                        <li><a href="/api">API仕様</a></li>
+                        <li><a href="/contribute">貢献方法</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Valorant Discord Bot. MIT License.</p>
+                <p>このBotはRiot Games, Inc.の公式サービスではありません。VALORANT は Riot Games, Inc. の商標です。</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Header background on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 50) {
+                header.style.background = 'rgba(13, 17, 23, 0.98)';
+            } else {
+                header.style.background = 'rgba(13, 17, 23, 0.95)';
+            }
+        });
+
+        // Feature cards animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeInUp 0.6s ease-out';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Add to Discord button functionality (placeholder until bot is created)
+        document.querySelectorAll('a[href="#add-bot"]').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Discord Botのセットアップが完了次第、招待リンクを有効化します。\n\n開発状況はGitHubリポジトリでご確認ください：\nhttps://github.com/hszk-dev/valorant-discord-bot');
+            });
+        });
+    </script>
+</body>
+</html>
